@@ -1,7 +1,7 @@
 # IAM
 
 This script will update the password policy in your account to an industry accepted baseline based on commercial media company usage.
-John Olivers New
+
 
 ## Why?
 
