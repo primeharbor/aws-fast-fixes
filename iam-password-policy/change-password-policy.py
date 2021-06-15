@@ -32,9 +32,10 @@ def main(args, logger):
 
 def setPasswordPolicy( args ,client= None,):
     #Excute account password policy change
-    Dry_Run= True
-    if not args.Dry_Run:
-        Dry_Run= False
+   
+    currentAccountPolicy = client.get_account_password_policy()
+    changes_required = False
+    
     
     strong_stance = {
         "MinimumPasswordLength": 14,
@@ -47,37 +48,64 @@ def setPasswordPolicy( args ,client= None,):
         "PasswordReusePrevention": 15,
         "HardExpiry": False }
 
+    
+
+
+
     if args.auto:
-        response = client.update_account_password_policy(
-        MinimumPasswordLength=strong_stance["MinimumPasswordLength"],
-        RequireSymbols=strong_stance["RequireSymbols"],
-        RequireNumbers=strong_stance["RequireNumbers"],
-        RequireUppercaseCharacters=strong_stance["RequireUppercaseCharacters"],
-        RequireLowercaseCharacters=strong_stance["RequireLowercaseCharacters"],
-        AllowUsersToChangePassword=strong_stance["AllowUsersToChangePassword"],
-        MaxPasswordAge=strong_stance["MaxPasswordAge"],
-        PasswordReusePrevention=strong_stance["PasswordReusePrevention"],
-        HardExpiry=strong_stance["HardExpiry"],
-        DryRun=Dry_Run)
+        if currentAccountPolicy is not strong_stance:
+            response = client.update_account_password_policy(
+            MinimumPasswordLength=strong_stance["MinimumPasswordLength"],
+            RequireSymbols=strong_stance["RequireSymbols"],
+            RequireNumbers=strong_stance["RequireNumbers"],
+            RequireUppercaseCharacters=strong_stance["RequireUppercaseCharacters"],
+            RequireLowercaseCharacters=strong_stance["RequireLowercaseCharacters"],
+            AllowUsersToChangePassword=strong_stance["AllowUsersToChangePassword"],
+            MaxPasswordAge=strong_stance["MaxPasswordAge"],
+            PasswordReusePrevention=strong_stance["PasswordReusePrevention"],
+            HardExpiry=strong_stance["HardExpiry"],
+        )
+            changes_required = True
 
     else:
-        response = client.update_account_password_policy(
-        MinimumPasswordLength=args.MinimumPasswordLength,
-        RequireSymbols=args.RequireSymbols,
-        RequireNumbers=args.RequireNumbers,
-        RequireUppercaseCharacters=args.RequireUppercaseCharacters,
-        RequireLowercaseCharacters=args.RequireLowercaseCharacters,
-        AllowUsersToChangePassword=args.AllowUsersToChangePassword,
-        MaxPasswordAge= args.MaxPasswordAge,
-        PasswordReusePrevention=args.PasswordReusePrevention,
-        HardExpiry=args.HardExpiry,
-        DryRun=Dry_Run)
+        inputPolicy= {
+        "MinimumPasswordLength": args.MinimumPasswordLength,
+        "RequireSymbols": args.RequireSymbols,
+        "RequireNumbers": args.RequireNumbers,
+        "RequireUppercaseCharacters": args.RequireUppercaseCharacters,
+        "RequireLowercaseCharacters": args.RequireLowercaseCharacters,
+        "AllowUsersToChangePassword": args.AllowUsersToChangePassword,
+        "MaxPasswordAge": args.MaxPasswordAge,
+        "PasswordReusePrevention": args.PasswordReusePrevention,
+        "HardExpiry": args.HardExpiry 
+        }
 
+        if currentAccountPolicy is not inputPolicy:
+            response = client.update_account_password_policy(
+            MinimumPasswordLength=args.MinimumPasswordLength,
+            RequireSymbols=args.RequireSymbols,
+            RequireNumbers=args.RequireNumbers,
+            RequireUppercaseCharacters=args.RequireUppercaseCharacters,
+            RequireLowercaseCharacters=args.RequireLowercaseCharacters,
+            AllowUsersToChangePassword=args.AllowUsersToChangePassword,
+            MaxPasswordAge= args.MaxPasswordAge,
+            PasswordReusePrevention=args.PasswordReusePrevention,
+            HardExpiry=args.HardExpiry,
+            )
+            changes_required = True
+
+    if changes_required:
+        logging.info("Changes requested based on user input attempting update.")
    
     
     if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+        logging.info("Changes requested based on user input and were successfully applied.")
+
         return(True)
     else:
+        if not changes_required:
+            logging.info("Changes were not requested based on user input")
+        logging.info("Changes were not succesfully applied.")
         return(False)
         
 
