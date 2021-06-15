@@ -1,6 +1,6 @@
 # IAM
 
-This script will update the password policy in your account to an industry accepted baseline based on commercial media company usage.
+This script will update the password policy in your account to an industry accepted baseline.
 
 
 ## Why?
@@ -9,7 +9,7 @@ This script will update the password policy in your account to an industry accep
 
 ## What the script does.
 
-This script updates the iam account password policy to an industry accepted baseline based on commercial media company usage.
+This script updates the iam account password policy to an industry accepted baseline.
 
 If --auto is specified the scripts default settings will be applied there is no further policy input needed from the user.
 

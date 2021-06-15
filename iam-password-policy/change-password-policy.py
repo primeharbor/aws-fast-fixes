@@ -22,7 +22,8 @@ def main(args, logger):
 
     try:
         response = setPasswordPolicy(args, client= session.client(service_name='iam'))
-        logging.debug("Response:"+response)
+        logging.debug("Response:"+str(response))
+        logging.info("Response: Successfuly updated password policy")
     except Error as err:
         logging.error("Authentication Failed, Network Connectivity is an issue, or Something else went wrong. Use --debug for more information.")
         logging.debug("error:"+str(err))
@@ -36,14 +37,14 @@ def setPasswordPolicy( args ,client= None,):
         Dry_Run= False
     
     strong_stance = {
-        "MinimumPasswordLength": 10,
+        "MinimumPasswordLength": 14,
         "RequireSymbols": True,
         "RequireNumbers": True,
         "RequireUppercaseCharacters": True,
         "RequireLowercaseCharacters": True,
         "AllowUsersToChangePassword": True,
-        "MaxPasswordAge": 365,
-        "PasswordReusePrevention": 12,
+        "MaxPasswordAge": 180,
+        "PasswordReusePrevention": 15,
         "HardExpiry": False }
 
     if args.auto:
@@ -87,12 +88,12 @@ def do_args():
     parser.add_argument("--auto", help="Use default 'strong' password policy stance")
     parser.add_argument("--debug", help="Display debug logging messages")
     parser.add_argument("--Dry_Run", help="Executes the call to the AWS IAM api otherwise will default to a 'Dry Run Operation'", action='store_true')
-    parser.add_argument("--MinimumPasswordLength", help="Specify Password minimum lengh using Number(default: 10)", default=10)
+    parser.add_argument("--MinimumPasswordLength", help="Specify Password minimum lengh using Number(default: 14)", default=14)
     parser.add_argument("--RequireSymbols", help="Specify Password Policy use of requiring symbols(True or False), Default: True", default= True)
     parser.add_argument("--RequireUppercaseCharacters", help="Specify Password Policy use of requiring Upper Case Characters(True or False), Default: True" , default= True)
     parser.add_argument("--RequireLowercaseCharacters", help="Specify Password Policy use of requiring Lower Case Characters(True or False), Default: True", default= True)
     parser.add_argument("--AllowUsersToChangePassword", help="Specify Password Policy to allow users to change their own password(True or False), Default: True", default= True)
-    parser.add_argument("--MaxPasswordAge", help="Specify Password maximum age using Number, default: 365", default=365)
+    parser.add_argument("--MaxPasswordAge", help="Specify Password maximum age using Number, default: 180", default=180)
     parser.add_argument("--PasswordReusePrevention", help="Specify Password Policy Reuse prevention as the number of previous passwords to store and prevent the user from using. Recieves Number., Default: 12", default=12)
     parser.add_argument("--HardExpiry", help="Specify Password Policy require admin privileges to reset a users password(True or False), Default: False", default=False)
 
