@@ -35,8 +35,7 @@ def setPasswordPolicy( args ,client= None,):
    
     currentAccountPolicy = client.get_account_password_policy()
     changes_required = False
-    
-    
+
     strong_stance = {
         "MinimumPasswordLength": 14,
         "RequireSymbols": True,
@@ -47,8 +46,36 @@ def setPasswordPolicy( args ,client= None,):
         "MaxPasswordAge": 180,
         "PasswordReusePrevention": 15,
         "HardExpiry": False }
+    if not args.auto:
+        inputPolicy= {
+            "MinimumPasswordLength": args.MinimumPasswordLength,
+            "RequireSymbols": args.RequireSymbols,
+            "RequireNumbers": args.RequireNumbers,
+            "RequireUppercaseCharacters": args.RequireUppercaseCharacters,
+            "RequireLowercaseCharacters": args.RequireLowercaseCharacters,
+            "AllowUsersToChangePassword": args.AllowUsersToChangePassword,
+            "MaxPasswordAge": args.MaxPasswordAge,
+            "PasswordReusePrevention": args.PasswordReusePrevention,
+            "HardExpiry": args.HardExpiry 
+            }
 
-    
+    if not args.actually-do-it:
+        logging.info("Performing Dry Run Operation")
+        if args.auto:
+            if currentAccountPolicy is not strong_stance:
+                logging.info("Existing Policy does not match auto generated policy. Changes would be applied.")
+                logging.info("Exiting")
+                return(False)
+        elif currentAccountPolicy is not inputPolicy:
+            logging.info("Existing Policy does not match user input policy. Changes would be applied.")
+            logging.info("Exiting")
+            return(False)
+        else:
+            logging.info(" Policies match no changes would be applied.")
+            logging.info("Exiting")
+            return(False)
+
+
 
 
 
@@ -68,17 +95,6 @@ def setPasswordPolicy( args ,client= None,):
             changes_required = True
 
     else:
-        inputPolicy= {
-        "MinimumPasswordLength": args.MinimumPasswordLength,
-        "RequireSymbols": args.RequireSymbols,
-        "RequireNumbers": args.RequireNumbers,
-        "RequireUppercaseCharacters": args.RequireUppercaseCharacters,
-        "RequireLowercaseCharacters": args.RequireLowercaseCharacters,
-        "AllowUsersToChangePassword": args.AllowUsersToChangePassword,
-        "MaxPasswordAge": args.MaxPasswordAge,
-        "PasswordReusePrevention": args.PasswordReusePrevention,
-        "HardExpiry": args.HardExpiry 
-        }
 
         if currentAccountPolicy is not inputPolicy:
             response = client.update_account_password_policy(
@@ -115,7 +131,7 @@ def do_args():
     parser.add_argument("--profile", help="Use this CLI profile (instead of default or env credentials)")
     parser.add_argument("--auto", help="Use default 'strong' password policy stance")
     parser.add_argument("--debug", help="Display debug logging messages")
-    parser.add_argument("--Dry_Run", help="Executes the call to the AWS IAM api otherwise will default to a 'Dry Run Operation'", action='store_true')
+    parser.add_argument("--actually-do-it", help="Executes the call to the AWS IAM api otherwise will default to a 'Dry Run Operation'", action='store_true')
     parser.add_argument("--MinimumPasswordLength", help="Specify Password minimum lengh using Number(default: 14)", default=14)
     parser.add_argument("--RequireSymbols", help="Specify Password Policy use of requiring symbols(True or False), Default: True", default= True)
     parser.add_argument("--RequireUppercaseCharacters", help="Specify Password Policy use of requiring Upper Case Characters(True or False), Default: True" , default= True)
