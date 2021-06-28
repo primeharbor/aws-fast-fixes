@@ -22,12 +22,12 @@ def main(args, logger):
 
     try:
         response = setPasswordPolicy(args, client= session.client(service_name='iam'))
-        logging.debug("Response:"+str(response))
-        logging.info("Response: Successfuly updated password policy")
-    except Error as err:
-        logging.error("Authentication Failed, Network Connectivity is an issue, or Something else went wrong. Use --debug for more information.")
-        logging.debug("error:"+str(err))
-        logging.debug()
+        logger.debug("Response:"+str(response))
+        logger.info("Response: Successfuly updated password policy")
+    except Exception as err:
+        logger.error("Authentication Failed, Network Connectivity is an issue, or Something else went wrong. Use --debug for more information.")
+        logger.debug("error:"+str(err))
+        logger.debug()
 
 
 def setPasswordPolicy( args ,client= None,):
@@ -59,20 +59,20 @@ def setPasswordPolicy( args ,client= None,):
             "HardExpiry": args.HardExpiry 
             }
 
-    if not args.actually-do-it:
-        logging.info("Performing Dry Run Operation")
+    if not args.actually_do_it:
+        logger.info("Performing Dry Run Operation")
         if args.auto:
             if currentAccountPolicy is not strong_stance:
-                logging.info("Existing Policy does not match auto generated policy. Changes would be applied.")
-                logging.info("Exiting")
+                logger.info("Existing Policy does not match auto generated policy. Changes would be applied.")
+                logger.info("Exiting")
                 return(False)
         elif currentAccountPolicy is not inputPolicy:
-            logging.info("Existing Policy does not match user input policy. Changes would be applied.")
-            logging.info("Exiting")
+            logger.info("Existing Policy does not match user input policy. Changes would be applied.")
+            logger.info("Exiting")
             return(False)
         else:
-            logging.info(" Policies match no changes would be applied.")
-            logging.info("Exiting")
+            logger.info(" Policies match no changes would be applied.")
+            logger.info("Exiting")
             return(False)
 
 
@@ -111,17 +111,17 @@ def setPasswordPolicy( args ,client= None,):
             changes_required = True
 
     if changes_required:
-        logging.info("Changes requested based on user input attempting update.")
+        logger.info("Changes requested based on user input attempting update.")
    
     
     if response['ResponseMetadata']['HTTPStatusCode'] == 200:
-        logging.info("Changes requested based on user input and were successfully applied.")
+        logger.info("Changes requested based on user input and were successfully applied.")
 
         return(True)
     else:
         if not changes_required:
             logging.info("Changes were not requested based on user input")
-        logging.info("Changes were not succesfully applied.")
+        logger.info("Changes were not succesfully applied.")
         return(False)
         
 
@@ -130,10 +130,11 @@ def do_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", help="Use this CLI profile (instead of default or env credentials)")
     parser.add_argument("--auto", help="Use default 'strong' password policy stance")
-    parser.add_argument("--debug", help="Display debug logging messages")
+    parser.add_argument("--debug", help="Display debug logging messages", action='store_true')
     parser.add_argument("--actually-do-it", help="Executes the call to the AWS IAM api otherwise will default to a 'Dry Run Operation'", action='store_true')
     parser.add_argument("--MinimumPasswordLength", help="Specify Password minimum lengh using Number(default: 14)", default=14)
     parser.add_argument("--RequireSymbols", help="Specify Password Policy use of requiring symbols(True or False), Default: True", default= True)
+    parser.add_argument("--RequireNumbers", help="Specify Password Policy use of requiring numbers(True or False), Default: True", default= True)
     parser.add_argument("--RequireUppercaseCharacters", help="Specify Password Policy use of requiring Upper Case Characters(True or False), Default: True" , default= True)
     parser.add_argument("--RequireLowercaseCharacters", help="Specify Password Policy use of requiring Lower Case Characters(True or False), Default: True", default= True)
     parser.add_argument("--AllowUsersToChangePassword", help="Specify Password Policy to allow users to change their own password(True or False), Default: True", default= True)
@@ -154,6 +155,10 @@ if __name__ == '__main__':
     # Logging idea stolen from: https://docs.python.org/3/howto/logging.html#configuring-logging
     # create console handler and set level to debug
     logger = logging.getLogger('enable-iam-password-policy')
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
     
     # Silence Boto3 & Friends
     logging.getLogger('botocore').setLevel(logging.WARNING)
