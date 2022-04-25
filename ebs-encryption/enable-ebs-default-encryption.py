@@ -173,7 +173,40 @@ def create_org_cmk(client, org_info, account_id, region, key_alias):
                         "aws:PrincipalOrgID": org_id
                     }
                 }
-            }
+            },
+            # {
+            #     "Sid": "Allow service-linked role use of the CMK",
+            #     "Action": [
+            #         "kms:Encrypt",
+            #         "kms:Decrypt",
+            #         "kms:ReEncrypt*",
+            #         "kms:GenerateDataKey*",
+            #         "kms:DescribeKey"
+            #     ],
+            #     "Effect": "Allow",
+            #     "Principal": {
+            #         "AWS": f"arn:aws:iam::{account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+            #     },
+            #     "Resource": "*"
+            # },
+            # {
+            #     "Sid": "Allow attachment of persistent resources",
+            #     "Action": [
+            #         "kms:CreateGrant",
+            #         "kms:ListGrants",
+            #         "kms:RevokeGrant"
+            #     ],
+            #     "Condition": {
+            #         "Bool": {
+            #             "kms:GrantIsForAWSResource": "true"
+            #         }
+            #     },
+            #     "Effect": "Allow",
+            #     "Principal": {
+            #         "AWS": f"arn:aws:iam::{account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling"
+            #     },
+            #     "Resource": "*"
+            # }
         ]
     }
 
@@ -190,7 +223,7 @@ def create_org_cmk(client, org_info, account_id, region, key_alias):
         AliasName=key_alias,
         TargetKeyId=key['KeyId']
     )
-    print(f"Created Key {key['KeyId']} in {region} with ARN of {key['Arn']}")
+    logger.info(f"Created Key {key['KeyId']} in {region} with ARN of {key['Arn']}")
     return(key['Arn'])
 
 
@@ -207,7 +240,7 @@ def create_cmk(client, region, key_alias):
         AliasName=key_alias,
         TargetKeyId=key['KeyId']
     )
-    print(f"Created Key {key['KeyId']} in {region} with ARN of {key['Arn']}")
+    ogger.info(f"Created Key {key['KeyId']} in {region} with ARN of {key['Arn']}")
     return(key['Arn'])
 
 
