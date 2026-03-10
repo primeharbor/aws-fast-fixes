@@ -4,6 +4,7 @@ import boto3
 from botocore.exceptions import ClientError
 import logging
 import json
+from time import sleep
 
 
 def main(args, logger):
@@ -354,7 +355,7 @@ def create_iam_role(iam_client, args, logger):
             PolicyDocument=json.dumps(policy_document)
         )
         logger.info(f"Attached logging policy to role {args.iam_role_name}")
-
+        sleep(20)
         return role_arn
 
     except ClientError as e:
